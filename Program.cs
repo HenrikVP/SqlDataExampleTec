@@ -16,6 +16,8 @@ namespace SqlDataExampleTec
             Console.WriteLine($"{person.Name} (born {person.Dob}) have gotten id : {id}");
             else Console.WriteLine("Something went horribly wrong!");
 
+
+
         }
     }
 }
