@@ -52,20 +52,75 @@ namespace SqlDataExampleTec
 
         }
 
-        void Select(Person person)
+        internal List<Person> Select(string search)
         {
-            string sql = "SELECT * FROM person";
+            List<Person> personList = new List<Person>();
+            string sql = $"SELECT * FROM person WHERE [name] like '%{search}%'";
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                connection.Open();
-
-                SqlCommand command = new SqlCommand(sql, connection);
-                SqlDataReader reader = command.ExecuteReader();
-                while (reader.Read())
+                try
                 {
-                    Console.WriteLine(String.Format("{0}", reader[0]));
+                    connection.Open();
+
+                    SqlCommand command = new SqlCommand(sql, connection);
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        //Console.WriteLine($"{reader[0]}, {reader[1]}, {reader[2]}");
+                        personList.Add(new Person()
+                        {
+                            Id = (int)reader[0],
+                            Name = (string)reader[1],
+                            Dob = (DateTime)reader[2]
+                        });
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // We should log the error somewhere, 
+                    // for this example let's just show a message
+                    Console.WriteLine("ERROR:" + ex.Message);
+                    return null;
                 }
             }
+            return personList;
+        }
+
+        internal List<Person> Select(DateTime dateTime)
+        {
+            List<Person> personList = new List<Person>();
+            string sql = $"SELECT * FROM person WHERE dob = @dob";
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+
+                    SqlCommand cmd = new SqlCommand(sql, connection);
+                    cmd.Parameters.Add("@dob", SqlDbType.DateTime).Value = dateTime;
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        //Console.WriteLine($"{reader[0]}, {reader[1]}, {reader[2]}");
+                        personList.Add(new Person()
+                        {
+                            Id = (int)reader[0],
+                            Name = (string)reader[1],
+                            Dob = (DateTime)reader[2]
+                        });
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // We should log the error somewhere, 
+                    // for this example let's just show a message
+                    Console.WriteLine("ERROR:" + ex.GetType() +"\n"+ ex.Message);
+                    return null;
+                }
+            }
+            return personList;
         }
     }
 }
