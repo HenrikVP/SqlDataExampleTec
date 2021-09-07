@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -9,10 +10,15 @@ namespace SqlDataExampleTec
 {
     class Sql
     {
-        void Insert()
+        const string connetionString =
+            "Data Source =.; " +
+            "Initial Catalog = SqlDataDB; " +
+            "Integrated Security = True";
+
+        public int? Insert(Person person)
         {
             // Prepare a proper parameterized query 
-            string sql = "insert into Main ([Firt Name], [Last Name]) values(@first,@last)";
+            string sql = "INSERT INTO person ([name], dob) OUTPUT INSERTED.id VALUES(@name,@dob) ";
 
             // Create the connection (and be sure to dispose it at the end)
             using (SqlConnection cnn = new SqlConnection(connetionString))
@@ -28,29 +34,40 @@ namespace SqlDataExampleTec
                     using (SqlCommand cmd = new SqlCommand(sql, cnn))
                     {
                         // Create and set the parameters values 
-                        cmd.Parameters.Add("@first", SqlDbType.NVarChar).Value = textbox2.text;
-                        cmd.Parameters.Add("@last", SqlDbType.NVarChar).Value = textbox3.text;
+                        cmd.Parameters.Add("@name", SqlDbType.NVarChar).Value = person.Name;
+                        cmd.Parameters.Add("@dob", SqlDbType.DateTime).Value = person.Dob;
 
-                        // Let's ask the db to execute the query
-                        int rowsAdded = cmd.ExecuteNonQuery();
-                        if (rowsAdded > 0)
-                            MessageBox.Show("Row inserted!!" + );
-                        else
-                            // Well this should never really happen
-                            MessageBox.Show("No row inserted");
-
+                        var id = cmd.ExecuteScalar();
+                        return (int?)id;
                     }
                 }
                 catch (Exception ex)
                 {
                     // We should log the error somewhere, 
                     // for this example let's just show a message
-                    MessageBox.Show("ERROR:" + ex.Message);
+                    Console.WriteLine("ERROR:" + ex.Message);
+                    return null;
                 }
             }
 
         }
+
+        void Select(Person person)
+        {
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                SqlCommand command = new SqlCommand(queryString, connection);
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Console.WriteLine(String.Format("{0}", reader[0]));
+                }
+            }
+
+
+        }
     }
-
-
 }
