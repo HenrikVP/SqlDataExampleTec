@@ -10,7 +10,7 @@ namespace SqlDataExampleTec
 {
     class Sql
     {
-        const string connetionString =
+        const string connectionString =
             "Data Source =.; " +
             "Initial Catalog = SqlDataDB; " +
             "Integrated Security = True";
@@ -21,7 +21,7 @@ namespace SqlDataExampleTec
             string sql = "INSERT INTO person ([name], dob) OUTPUT INSERTED.id VALUES(@name,@dob) ";
 
             // Create the connection (and be sure to dispose it at the end)
-            using (SqlConnection cnn = new SqlConnection(connetionString))
+            using (SqlConnection cnn = new SqlConnection(connectionString))
             {
                 try
                 {
@@ -54,20 +54,18 @@ namespace SqlDataExampleTec
 
         void Select(Person person)
         {
-
+            string sql = "SELECT * FROM person";
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
 
-                SqlCommand command = new SqlCommand(queryString, connection);
+                SqlCommand command = new SqlCommand(sql, connection);
                 SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
                     Console.WriteLine(String.Format("{0}", reader[0]));
                 }
             }
-
-
         }
     }
 }
